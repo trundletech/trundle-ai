@@ -797,7 +797,8 @@ function formatPlacesForAI(places) {
     const suitable = p['Suitable For'] || '';
     const mapLink = p['Google Map Link'] || '';
     const hidden = p['Hidden Gem'] || '';
-    const rec = p['Highly recommended by'] || '';
+    const rec = p['Highly recommended by'] || p['Highly Recommended By'] || '';
+    const social = p['Social Media Reference'] || p['Instagram'] || '';
     return `[${i+1}] ${name} — ${city}, ${country}
 Category: ${cat}${subcat ? ' / '+subcat : ''}
 ${desc}
@@ -805,7 +806,8 @@ ${timing ? 'Timings: '+timing : ''}
 ${suitable ? 'Best for: '+suitable : ''}
 ${hidden === 'yes' ? '⭐ Hidden gem' : ''}
 ${rec ? 'Recommended by: '+rec : ''}
-${mapLink ? 'Maps: '+mapLink : ''}`;
+${mapLink ? 'Maps: '+mapLink : ''}
+${social ? 'Instagram/Social: '+social : ''}`;
   }).join('\n\n');
 }
 
@@ -831,7 +833,9 @@ YOUR TONE:
 FORMAT:
 - For place recommendations: give a 1-2 line punchy intro, then list the places naturally in conversation
 - Keep each place description to 2-3 sentences max
-- Include map links when available
+- Always include the Google Maps link when available — format it as: 📍 [Google Maps](url)
+- Always show who recommended it when available — format it as: 👤 Recommended by [name]
+- Always show the Instagram/social link when available — format it as: 📸 [Instagram](url)
 - Don't write walls of text
 
 DATABASE PLACES PROVIDED:
