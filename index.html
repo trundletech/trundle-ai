@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trundle AI — Your Travel Insider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #7B35E8;
+  --purple-dark: #5A1FBD;
+  --purple-light: #9D5FF0;
+  --purple-pale: #F3EEFF;
+  --dark: #0E0A1A;
+  --dark-2: #1A1228;
+  --dark-3: #251B38;
+  --text: #F0EBF8;
+  --text-2: #B8A8D0;
+  --text-3: #7A6A90;
+  --border: rgba(123,53,232,0.2);
+  --green: #22C55E;
+  --radius: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── HEADER ───────────────────────────────── */
+.header {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--dark-2);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.logo { display:flex; align-items:center; gap:10px; }
+.logo svg { width:32px; height:32px; }
+.logo-name { font-size:1.1rem; font-weight:700; color:var(--text); letter-spacing:0.02em; }
+.logo-name span { color:var(--purple-light); }
+.header-tag {
+  background: rgba(123,53,232,0.15);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--purple-light);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── MAIN LAYOUT ──────────────────────────── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ──────────────────────────────── */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--dark-2);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px;
+  gap: 20px;
+}
+
+.sidebar-hint {
+  background: linear-gradient(135deg, rgba(123,53,232,0.15), rgba(123,53,232,0.05));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.sidebar-hint p {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.sidebar-hint strong {
+  color: var(--purple-light);
+  display: block;
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+.sidebar-hint .hint-icon { font-size: 1.2rem; margin-bottom: 6px; display: block; }
+
+.prefs-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pref-group { display:flex; flex-direction:column; gap:8px; }
+.pref-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 2px;
+}
+
+.pref-pills { display:flex; flex-wrap:wrap; gap:6px; }
+.pill {
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  background: transparent;
+  transition: all 0.2s;
+  font-family: 'Sora', sans-serif;
+}
+.pill:hover { border-color: var(--purple); color: var(--purple-light); }
+.pill.active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+
+.pref-input {
+  width: 100%;
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pref-input:focus { border-color: var(--purple); }
+.pref-input::placeholder { color: var(--text-3); }
+
+.apply-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--purple);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  transition: background 0.2s;
+  letter-spacing: 0.04em;
+}
+.apply-btn:hover { background: var(--purple-dark); }
+
+.prefs-applied {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ── CHAT AREA ────────────────────────────── */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-track { background: transparent; }
+.messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Welcome screen */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  gap: 16px;
+  padding: 40px;
+}
+.welcome-icon { font-size: 3rem; }
+.welcome h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.welcome h2 span { color: var(--purple-light); }
+.welcome p {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  max-width: 420px;
+  line-height: 1.7;
+}
+.welcome-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.welcome-chip {
+  padding: 8px 16px;
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Sora', sans-serif;
+}
+.welcome-chip:hover {
+  border-color: var(--purple);
+  color: var(--text);
+  background: rgba(123,53,232,0.1);
+}
+
+/* Messages */
+.msg { display:flex; gap:12px; max-width:780px; }
+.msg.user { align-self:flex-end; flex-direction:row-reverse; }
+.msg.assistant { align-self:flex-start; }
+
+.msg-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.msg.assistant .msg-avatar {
+  background: var(--purple);
+  color: #fff;
+}
+.msg.user .msg-avatar {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+.msg-bubble {
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-width: 600px;
+}
+.msg.assistant .msg-bubble {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-top-left-radius: 4px;
+}
+.msg.user .msg-bubble {
+  background: var(--purple);
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+/* Place cards in response */
+.place-cards { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+.place-card {
+  background: var(--dark-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+.place-card:hover { border-color: var(--purple); }
+.place-num {
+  width: 26px; height: 26px;
+  background: rgba(123,53,232,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--purple-light);
+  flex-shrink: 0;
+}
+.place-info { flex:1; }
+.place-name { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.place-meta { font-size: 0.75rem; color: var(--text-3); margin-bottom: 6px; }
+.place-desc { font-size: 0.8rem; color: var(--text-2); line-height: 1.6; }
+.place-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.place-tag {
+  padding: 2px 8px;
+  background: rgba(123,53,232,0.12);
+  border-radius: 50px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--purple-light);
+}
+.place-map {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.72rem; color: var(--purple-light);
+  text-decoration: none; margin-top: 6px;
+}
+.place-map:hover { text-decoration: underline; }
+
+/* Typing indicator */
+.typing { display:flex; align-items:center; gap:4px; padding: 12px 16px; }
+.typing span {
+  width:7px; height:7px;
+  background: var(--purple-light);
+  border-radius: 50%;
+  animation: bounce 1.2s infinite;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%,60%,100% { transform:translateY(0); opacity:0.4; }
+  30% { transform:translateY(-6px); opacity:1; }
+}
+
+/* ── INPUT BAR ────────────────────────────── */
+.input-bar {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--dark-2);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.input-wrap {
+  flex: 1;
+  position: relative;
+}
+.input-field {
+  width: 100%;
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  outline: none;
+  resize: none;
+  min-height: 48px;
+  max-height: 140px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.input-field:focus { border-color: var(--purple); }
+.input-field::placeholder { color: var(--text-3); }
+
+.send-btn {
+  width: 48px; height: 48px;
+  background: var(--purple);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.send-btn:hover { background: var(--purple-dark); transform: scale(1.05); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.send-btn svg { width:20px; height:20px; fill:#fff; }
+
+.input-hint {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  text-align: center;
+  padding: 6px 0 0;
+}
+
+/* Country selector in welcome */
+.country-btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.country-btn {
+  padding: 8px 18px;
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  transition: all 0.2s;
+}
+.country-btn:hover, .country-btn.active {
+  border-color: var(--purple);
+  background: rgba(123,53,232,0.15);
+  color: var(--text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { display:none; }
+  .messages { padding: 16px; }
+  .input-bar { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <svg viewBox="0 0 155 155" xmlns="http://www.w3.org/2000/svg">
+      <path d="M145.9 96.5C129 132.6 78.3 164.6 42.2 147.7C6 130.8 -10.2 64.5 6.7 28.4C23.6-7.8 67.3-0.1 103.4 16.8C148.4 37.8 162.8 60.4 145.9 96.5Z" fill="#6F27FF"/>
+      <path d="M46.1 57.1C38.6 50.4 33.6 42.4 30.2 39L30.2 51.6C30.2 61.8 38.6 70 48.7 69.6L65 69.2C59.7 66.8 55.3 65.2 46.1 57.1Z" fill="#C4A8FF"/>
+      <path d="M100.3 52.8L47.4 52.6L58.7 61.5C63.2 65.1 68.7 67 74.5 66.8L121.1 66L118.8 62.6C114.7 56.5 107.7 52.8 100.3 52.8Z" fill="white"/>
+      <path d="M92.7 70.2L82.1 70.4C78.2 70.5 74.7 72.6 72.7 76L54 107.6L57 107.6C64.9 107.7 72.2 103.6 76.3 96.9L92.7 70.2Z" fill="white"/>
+    </svg>
+    <span class="logo-name">trundle <span>AI</span></span>
+  </div>
+  <div class="header-tag">Beta · Free</div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR: Preferences -->
+  <aside class="sidebar">
+    <div class="sidebar-hint">
+      <span class="hint-icon">✨</span>
+      <strong>Get better picks</strong>
+      <p>Tell me a bit about yourself and I'll cut through the noise and give you recommendations that actually match your vibe.</p>
+    </div>
+
+    <span class="prefs-title">Your preferences</span>
+
+    <div class="pref-group">
+      <span class="pref-label">Travel style</span>
+      <div class="pref-pills" id="pref-style">
+        <button class="pill" data-group="style" onclick="togglePill(this)">Hidden gems</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Foodie</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Culture</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Nightlife</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Nature</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Shopping</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Adventure</button>
+        <button class="pill" data-group="style" onclick="togglePill(this)">Relaxation</button>
+      </div>
+    </div>
+
+    <div class="pref-group">
+      <span class="pref-label">Travelling with</span>
+      <div class="pref-pills" id="pref-with">
+        <button class="pill" data-group="with" onclick="togglePill(this)">Solo</button>
+        <button class="pill" data-group="with" onclick="togglePill(this)">Partner</button>
+        <button class="pill" data-group="with" onclick="togglePill(this)">Friends</button>
+        <button class="pill" data-group="with" onclick="togglePill(this)">Family</button>
+      </div>
+    </div>
+
+    <div class="pref-group">
+      <span class="pref-label">Budget</span>
+      <div class="pref-pills" id="pref-budget">
+        <button class="pill" data-group="budget" onclick="togglePill(this)">Budget</button>
+        <button class="pill" data-group="budget" onclick="togglePill(this)">Mid-range</button>
+        <button class="pill" data-group="budget" onclick="togglePill(this)">Luxury</button>
+      </div>
+    </div>
+
+    <div class="pref-group">
+      <span class="pref-label">Any special interests?</span>
+      <input type="text" class="pref-input" id="pref-custom"
+        placeholder="e.g. anime, K-drama spots, street food...">
+    </div>
+
+    <button class="apply-btn" onclick="applyPrefs()">Apply preferences</button>
+    <div class="prefs-applied" id="prefs-applied">
+      <span>✓</span> Preferences saved
+    </div>
+  </aside>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🗺️</div>
+        <h2>Your personal travel insider<br>for <span>Asia</span></h2>
+        <p>Ask me anything about Japan, South Korea, Thailand, and Vietnam. Hidden gems, food spots, things to do — I'll give you the real stuff, not the tourist traps.</p>
+        <div class="country-btns">
+          <button class="country-btn" onclick="setCountry('Japan')">🇯🇵 Japan</button>
+          <button class="country-btn" onclick="setCountry('South Korea')">🇰🇷 South Korea</button>
+          <button class="country-btn" onclick="setCountry('Thailand')">🇹🇭 Thailand</button>
+          <button class="country-btn" onclick="setCountry('Vietnam')">🇻🇳 Vietnam</button>
+        </div>
+        <div class="welcome-chips">
+          <button class="welcome-chip" onclick="useChip(this)">Best hidden ramen in Tokyo 🍜</button>
+          <button class="welcome-chip" onclick="useChip(this)">Unique things to do in Seoul 🌸</button>
+          <button class="welcome-chip" onclick="useChip(this)">Off the beaten path in Bangkok 🛺</button>
+          <button class="welcome-chip" onclick="useChip(this)">Hidden gems in Vietnam 🌾</button>
+          <button class="welcome-chip" onclick="useChip(this)">Best street food in Thailand 🌶️</button>
+          <button class="welcome-chip" onclick="useChip(this)">Anime spots in Tokyo 🎌</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input -->
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea
+          class="input-field"
+          id="input"
+          placeholder="Ask me anything — best ramen in Tokyo, hidden cafes in Seoul..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+      </div>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+    <p class="input-hint">Powered by Trundle's curated database of 2,000+ hidden gems</p>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9ynewIJ82VwgPvWZIW0oi4YbJMPSg7CAiIkAIch6zmBgZACUUjHQh-UxeqR8jIpuCLKpHESB_KGBR/pub?output=csv';
+const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+
+// ── STATE ───────────────────────────────────────────────
+let placeData = [];
+let dataLoaded = false;
+let history = [];
+let prefs = { style:[], with:[], budget:[], custom:'' };
+let selectedCountry = '';
+
+// ── LOAD DATA ───────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch(SHEET_CSV);
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    const headers = parseCSVRow(lines[0]);
+    placeData = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVRow(lines[i]);
+      if (!cols[0]) continue;
+      const row = {};
+      headers.forEach((h, j) => row[h.trim()] = (cols[j]||'').trim());
+      placeData.push(row);
+    }
+    dataLoaded = true;
+    console.log('Loaded', placeData.length, 'places');
+  } catch(e) {
+    console.error('Data load failed:', e);
+  }
+}
+
+function parseCSVRow(row) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < row.length; i++) {
+    const c = row[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── SEARCH DATA ─────────────────────────────────────────
+function searchPlaces(query, limit = 8) {
+  if (!dataLoaded || !placeData.length) return [];
+  const q = query.toLowerCase();
+  const country = selectedCountry.toLowerCase();
+
+  const scored = placeData.map(p => {
+    let score = 0;
+    const name = (p['Name of location'] || p['Name'] || '').toLowerCase();
+    const desc = (p['Description'] || '').toLowerCase();
+    const cat = (p['Category'] || '').toLowerCase();
+    const subcat = (p['Sub Category'] || '').toLowerCase();
+    const city = (p['City'] || '').toLowerCase();
+    const countryVal = (p['Country'] || '').toLowerCase();
+    const suitableFor = (p['Suitable For'] || '').toLowerCase();
+    const hidden = (p['Hidden Gem'] || '').toLowerCase();
+
+    // Country filter
+    if (country && !countryVal.includes(country)) return { p, score: -1 };
+
+    // Keyword matching
+    const tokens = q.split(/\s+/);
+    tokens.forEach(t => {
+      if (name.includes(t)) score += 10;
+      if (city.includes(t)) score += 8;
+      if (cat.includes(t)) score += 6;
+      if (subcat.includes(t)) score += 5;
+      if (desc.includes(t)) score += 3;
+      if (suitableFor.includes(t)) score += 4;
+      if (countryVal.includes(t)) score += 2;
+    });
+
+    // Preference boost
+    prefs.style.forEach(s => {
+      const sl = s.toLowerCase();
+      if (cat.includes(sl) || subcat.includes(sl) || desc.includes(sl) || suitableFor.includes(sl)) score += 4;
+    });
+    prefs.custom.split(',').forEach(c => {
+      const cl = c.trim().toLowerCase();
+      if (cl && (desc.includes(cl) || cat.includes(cl) || name.includes(cl))) score += 6;
+    });
+
+    // Hidden gem boost
+    if (hidden === 'yes' || hidden === 'true' || hidden === '1') score += 3;
+
+    return { p, score };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, limit).map(x => x.p);
+}
+
+function formatPlacesForAI(places) {
+  return places.map((p, i) => {
+    const name = p['Name of location'] || p['Name'] || 'Unknown';
+    const desc = p['Description'] || '';
+    const city = p['City'] || '';
+    const country = p['Country'] || '';
+    const cat = p['Category'] || '';
+    const subcat = p['Sub Category'] || '';
+    const timing = p['Open Timings'] || '';
+    const suitable = p['Suitable For'] || '';
+    const mapLink = p['Google Map Link'] || '';
+    const hidden = p['Hidden Gem'] || '';
+    const rec = p['Highly recommended by'] || '';
+    return `[${i+1}] ${name} — ${city}, ${country}
+Category: ${cat}${subcat ? ' / '+subcat : ''}
+${desc}
+${timing ? 'Timings: '+timing : ''}
+${suitable ? 'Best for: '+suitable : ''}
+${hidden === 'yes' ? '⭐ Hidden gem' : ''}
+${rec ? 'Recommended by: '+rec : ''}
+${mapLink ? 'Maps: '+mapLink : ''}`;
+  }).join('\n\n');
+}
+
+// ── AI CALL ─────────────────────────────────────────────
+async function callClaude(userMsg, relevantPlaces) {
+  const prefsText = [
+    prefs.style.length ? `Travel style: ${prefs.style.join(', ')}` : '',
+    prefs.with.length ? `Travelling with: ${prefs.with.join(', ')}` : '',
+    prefs.budget.length ? `Budget: ${prefs.budget.join(', ')}` : '',
+    prefs.custom ? `Special interests: ${prefs.custom}` : '',
+  ].filter(Boolean).join('\n');
+
+  const systemPrompt = `You are Trundle AI — a personal travel insider for Japan, South Korea, Thailand, and Vietnam. You're like a well-travelled friend who knows all the hidden gems and gives real, honest recommendations.
+
+YOUR TONE:
+- Excited but not cheesy. Think: "Oh you HAVE to go here" not "This wonderful establishment offers..."
+- Short and punchy. The user is in planning mode — no essays.
+- Use emojis sparingly but effectively
+- If there are specific places in the database, lead with them. Don't make things up.
+- If the user wants just a list without chat, give them the list straight away
+- Always end with a quick follow-up question or offer to narrow down further
+
+FORMAT:
+- For place recommendations: give a 1-2 line punchy intro, then list the places naturally in conversation
+- Keep each place description to 2-3 sentences max
+- Include map links when available
+- Don't write walls of text
+
+DATABASE PLACES PROVIDED:
+${relevantPlaces ? formatPlacesForAI(relevantPlaces) : 'No specific places found — answer from general knowledge but be clear about it.'}
+
+${prefsText ? `USER PREFERENCES:\n${prefsText}` : ''}
+
+IMPORTANT: Only recommend places from the database above. If the database doesn't have relevant results, say so honestly and offer to help with something else. Never make up place names.`;
+
+  const messages = [
+    ...history,
+    { role: 'user', content: userMsg }
+  ];
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages,
+    })
+  });
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+// ── UI HELPERS ───────────────────────────────────────────
+function hideWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.remove();
+}
+
+function appendMsg(role, content) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const initials = role === 'assistant' ? 'AI' : 'You';
+  div.innerHTML = `
+    <div class="msg-avatar">${initials}</div>
+    <div class="msg-bubble">${formatResponse(content)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function formatResponse(text) {
+  // Convert markdown-like formatting
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--purple-light)">$1 ↗</a>')
+    .replace(/\n/g, '<br>');
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg assistant';
+  div.id = 'typing';
+  div.innerHTML = `<div class="msg-avatar">AI</div>
+    <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+// ── SEND MESSAGE ─────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  hideWelcome();
+  input.value = '';
+  input.style.height = 'auto';
+
+  document.getElementById('send-btn').disabled = true;
+  appendMsg('user', msg);
+  history.push({ role: 'user', content: msg });
+
+  showTyping();
+
+  try {
+    // Search relevant places
+    const places = searchPlaces(msg);
+    const reply = await callClaude(msg, places);
+    hideTyping();
+    appendMsg('assistant', reply);
+    history.push({ role: 'assistant', content: reply });
+    // Keep history at last 10 turns
+    if (history.length > 20) history = history.slice(-20);
+  } catch(e) {
+    hideTyping();
+    appendMsg('assistant', `Sorry, something went wrong! 😅 Check your API key is set correctly. Error: ${e.message}`);
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('input').focus();
+}
+
+// ── PREFERENCES ──────────────────────────────────────────
+function togglePill(el) {
+  const group = el.dataset.group;
+  const val = el.textContent.trim();
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    if (!prefs[group]) prefs[group] = [];
+    prefs[group].push(val);
+  } else {
+    prefs[group] = prefs[group].filter(v => v !== val);
+  }
+}
+
+function applyPrefs() {
+  prefs.custom = document.getElementById('pref-custom').value.trim();
+  const applied = document.getElementById('prefs-applied');
+  applied.style.display = 'flex';
+  setTimeout(() => applied.style.display = 'none', 2500);
+}
+
+// ── MISC ─────────────────────────────────────────────────
+function setCountry(country) {
+  selectedCountry = country;
+  document.querySelectorAll('.country-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(country));
+  });
+  document.getElementById('input').placeholder = `Ask me about ${country}...`;
+  document.getElementById('input').focus();
+}
+
+function useChip(el) {
+  document.getElementById('input').value = el.textContent.trim().replace(/[🍜🌸🛺🌾🌶️🎌]/g,'').trim();
+  document.getElementById('input').focus();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+// ── INIT ──────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
