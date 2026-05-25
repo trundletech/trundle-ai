@@ -522,17 +522,23 @@ body {
   <!-- SIDEBAR: Preferences -->
   <aside class="sidebar">
     <!-- API Key -->
-    <div class="api-key-section" id="api-key-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span class="prefs-title">🔑 API Key</span>
-        <span class="api-status" id="api-status">Not set</span>
+    <div style="background:#1A1228;border:1px solid rgba(123,53,232,0.4);border-radius:14px;padding:16px;margin-bottom:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:0.72rem;font-weight:700;color:#9D5FF0;letter-spacing:0.12em;text-transform:uppercase;">🔑 API Key</span>
+        <span id="api-status" style="font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:50px;background:rgba(255,80,80,0.15);color:#ff8080;letter-spacing:0.06em;text-transform:uppercase;">Not set</span>
       </div>
-      <p class="api-key-hint" style="margin-bottom:10px;">Paste your Google Gemini API key below. Stays in your browser only.</p>
-      <div class="api-key-input-wrap">
-        <input type="password" class="pref-input" id="api-key-input" placeholder="Paste your AIza... key here" oninput="checkApiKey()" autocomplete="off">
-        <button class="api-key-toggle" id="key-toggle" onclick="toggleKeyVisibility()">👁</button>
-      </div>
-      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="api-key-link" style="margin-top:6px;display:inline-block;">Get a free API key ↗</a>
+      <p style="font-size:0.72rem;color:#7A6A90;line-height:1.6;margin-bottom:10px;">Paste your Google Gemini API key to activate the AI.</p>
+      <input
+        type="text"
+        id="api-key-input"
+        placeholder="AIza..."
+        oninput="checkApiKey()"
+        autocomplete="off"
+        style="width:100%;background:#0E0A1A;border:2px solid #7B35E8;border-radius:10px;padding:10px 14px;font-size:0.78rem;color:#F0EBF8;font-family:monospace;outline:none;display:block;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#9D5FF0'"
+        onblur="this.style.borderColor='#7B35E8'"
+      >
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="font-size:0.72rem;color:#9D5FF0;text-decoration:none;font-weight:600;margin-top:8px;display:inline-block;">Get a free API key ↗</a>
     </div>
 
     <div class="sidebar-hint">
