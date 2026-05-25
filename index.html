@@ -529,7 +529,7 @@ body {
       </div>
       <p style="font-size:0.72rem;color:#7A6A90;line-height:1.6;margin-bottom:10px;">Paste your Google Gemini API key to activate the AI.</p>
       <input
-        type="text"
+        type="password"
         id="api-key-input"
         placeholder="AIza..."
         oninput="checkApiKey()"
@@ -690,7 +690,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── CONFIG ─────────────────────────────────────────────
 const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9ynewIJ82VwgPvWZIW0oi4YbJMPSg7CAiIkAIch6zmBgZACUUjHQh-UxeqR8jIpuCLKpHESB_KGBR/pub?output=csv';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 // ── STATE ───────────────────────────────────────────────
 let placeData = [];
