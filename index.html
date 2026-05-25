@@ -528,12 +528,12 @@ body {
         <span class="api-status" id="api-status">Not set</span>
       </div>
       <div class="api-key-body" id="api-key-body">
-        <p class="api-key-hint">Paste your Anthropic API key to activate the AI. Stays in your browser only.</p>
+        <p class="api-key-hint">Paste your Google Gemini API key to activate the AI. Stays in your browser only — never shared.</p>
         <div class="api-key-input-wrap">
-          <input type="password" class="pref-input" id="api-key-input" placeholder="sk-ant-..." oninput="checkApiKey()">
+          <input type="password" class="pref-input" id="api-key-input" placeholder="AIza..." oninput="checkApiKey()">
           <button class="api-key-toggle" id="key-toggle" onclick="toggleKeyVisibility()">👁</button>
         </div>
-        <a href="https://console.anthropic.com/keys" target="_blank" rel="noopener" class="api-key-link">Get a free API key ↗</a>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="api-key-link">Get a free API key ↗</a>
       </div>
     </div>
 
@@ -635,7 +635,7 @@ body {
         </svg>
       </button>
     </div>
-    <p class="input-hint">Powered by Trundle's curated database of 2,000+ hidden gems</p>
+    <p class="input-hint">Powered by Trundle's curated database · Google Gemini AI</p>
   </div>
 </div>
 
@@ -649,7 +649,7 @@ function checkApiKey() {
   apiKey = input.value.trim();
   localStorage.setItem('trundle_api_key', apiKey);
   const status = document.getElementById('api-status');
-  if (apiKey.startsWith('sk-ant-') && apiKey.length > 20) {
+  if (apiKey.startsWith('AIza') && apiKey.length > 20) {
     status.textContent = 'Active ✓';
     status.classList.add('active');
   } else if (apiKey.length > 0) {
@@ -686,7 +686,7 @@ window.addEventListener('DOMContentLoaded', () => {
     apiKey = saved;
     checkApiKey();
     // Collapse key section if already set
-    if (saved.startsWith('sk-ant-') && saved.length > 20) {
+    if (saved.startsWith('AIza') && saved.length > 20) {
       document.getElementById('api-key-body').style.display = 'none';
     }
   }
@@ -694,7 +694,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── CONFIG ─────────────────────────────────────────────
 const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9ynewIJ82VwgPvWZIW0oi4YbJMPSg7CAiIkAIch6zmBgZACUUjHQh-UxeqR8jIpuCLKpHESB_KGBR/pub?output=csv';
-const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
 // ── STATE ───────────────────────────────────────────────
 let placeData = [];
@@ -845,25 +845,28 @@ ${prefsText ? `USER PREFERENCES:\n${prefsText}` : ''}
 
 IMPORTANT: Only recommend places from the database above. If the database doesn't have relevant results, say so honestly and offer to help with something else. Never make up place names.`;
 
-  const messages = [
-    ...history,
-    { role: 'user', content: userMsg }
-  ];
+  // Build Gemini conversation history
+  const geminiMessages = history.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
+  geminiMessages.push({ role: 'user', parts: [{ text: userMsg }] });
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages,
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: geminiMessages,
+      generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
     })
   });
 
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);
-  return data.content[0].text;
+  return data.candidates[0].content.parts[0].text;
 }
 
 // ── UI HELPERS ───────────────────────────────────────────
@@ -927,8 +930,8 @@ async function sendMessage() {
   showTyping();
 
   // Check API key first
-  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
-    appendMsg('assistant', '⚠️ Please add your Anthropic API key in the sidebar to get started. Click the 🔑 API Key section and paste your key.');
+  if (!apiKey || !apiKey.startsWith('AIza')) {
+    appendMsg('assistant', '⚠️ Please add your Google Gemini API key in the sidebar to get started. Click the 🔑 API Key section and paste your key. Get one free at aistudio.google.com');
     document.getElementById('send-btn').disabled = false;
     return;
   }
