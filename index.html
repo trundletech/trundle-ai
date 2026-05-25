@@ -523,18 +523,16 @@ body {
   <aside class="sidebar">
     <!-- API Key -->
     <div class="api-key-section" id="api-key-section">
-      <div class="api-key-header" onclick="toggleApiKey()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span class="prefs-title">🔑 API Key</span>
         <span class="api-status" id="api-status">Not set</span>
       </div>
-      <div class="api-key-body" id="api-key-body">
-        <p class="api-key-hint">Paste your Google Gemini API key to activate the AI. Stays in your browser only — never shared.</p>
-        <div class="api-key-input-wrap">
-          <input type="password" class="pref-input" id="api-key-input" placeholder="AIza..." oninput="checkApiKey()">
-          <button class="api-key-toggle" id="key-toggle" onclick="toggleKeyVisibility()">👁</button>
-        </div>
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="api-key-link">Get a free API key ↗</a>
+      <p class="api-key-hint" style="margin-bottom:10px;">Paste your Google Gemini API key below. Stays in your browser only.</p>
+      <div class="api-key-input-wrap">
+        <input type="password" class="pref-input" id="api-key-input" placeholder="Paste your AIza... key here" oninput="checkApiKey()" autocomplete="off">
+        <button class="api-key-toggle" id="key-toggle" onclick="toggleKeyVisibility()">👁</button>
       </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="api-key-link" style="margin-top:6px;display:inline-block;">Get a free API key ↗</a>
     </div>
 
     <div class="sidebar-hint">
@@ -661,11 +659,6 @@ function checkApiKey() {
   }
 }
 
-function toggleApiKey() {
-  const body = document.getElementById('api-key-body');
-  body.style.display = body.style.display === 'none' ? 'flex' : 'none';
-}
-
 function toggleKeyVisibility() {
   const input = document.getElementById('api-key-input');
   const btn = document.getElementById('key-toggle');
@@ -685,10 +678,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('api-key-input').value = saved;
     apiKey = saved;
     checkApiKey();
-    // Collapse key section if already set
-    if (saved.startsWith('AIza') && saved.length > 20) {
-      document.getElementById('api-key-body').style.display = 'none';
-    }
+
   }
 });
 
