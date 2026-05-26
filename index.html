@@ -503,7 +503,7 @@ body {
 <!-- HEADER -->
 <header class="header">
   <div class="logo">
-    <svg viewBox="0 0 619 155" xmlns="http://www.w3.org/2000/svg" height="34">
+    <svg viewBox="0 0 619 155" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto;max-width:160px;display:block;">
       <defs><linearGradient id="hg" x1="34.4" y1="42.5" x2="69.6" y2="72.5" gradientUnits="userSpaceOnUse"><stop stop-color="#C4A8FF"/><stop offset="1" stop-color="#7152B3"/></linearGradient></defs>
       <path d="M145.915 96.5034C128.998 132.648 78.3245 164.597 42.1797 147.679C6.03492 130.762 -10.205 64.5384 6.71251 28.3936C23.63 -7.75119 67.2986 -0.130394 103.443 16.7871C148.365 37.8126 162.833 60.3586 145.915 96.5034Z" fill="#6F27FF"/>
       <path d="M46.1338 57.1169C38.6051 50.4408 33.5636 42.3652 30.2132 38.9777L30.1935 51.6286C30.1777 61.788 38.5677 69.9475 48.7227 69.6488L65.0332 69.1691C59.7489 66.8063 55.2657 65.2146 46.1338 57.1169Z" fill="url(#hg)"/>
@@ -533,7 +533,7 @@ body {
         type="password"
         id="api-key-input"
         placeholder="AIza..."
-        oninput="checkApiKey()"
+        oninput="checkApiKey()" onpaste="setTimeout(checkApiKey,10)" onchange="checkApiKey()"
         autocomplete="off"
         style="width:100%;background:#0E0A1A;border:2px solid #7B35E8;border-radius:10px;padding:10px 14px;font-size:0.78rem;color:#F0EBF8;font-family:monospace;outline:none;display:block;box-sizing:border-box;"
         onfocus="this.style.borderColor='#9D5FF0'"
@@ -818,51 +818,52 @@ ${social ? 'Instagram/Social: '+social : ''}`;
 // ── AI CALL ─────────────────────────────────────────────
 async function callClaude(userMsg, relevantPlaces) {
   const prefsText = [
-    prefs.style.length ? `Travel style: ${prefs.style.join(', ')}` : '',
-    prefs.with.length ? `Travelling with: ${prefs.with.join(', ')}` : '',
-    prefs.budget.length ? `Budget: ${prefs.budget.join(', ')}` : '',
-    prefs.custom ? `Special interests: ${prefs.custom}` : '',
-  ].filter(Boolean).join('\n');
+    prefs.style.length ? 'Travel style: ' + prefs.style.join(', ') : '',
+    prefs.with.length ? 'Travelling with: ' + prefs.with.join(', ') : '',
+    prefs.budget.length ? 'Budget: ' + prefs.budget.join(', ') : '',
+    prefs.custom ? 'Special interests: ' + prefs.custom : '',
+  ].filter(Boolean).join(', ');
 
-  const systemPrompt = `You are Trundle tAi — a personal travel insider for Japan, South Korea, Thailand, and Vietnam. You help travellers discover hidden gems and plan their trips.
+  const dbSection = relevantPlaces && relevantPlaces.length
+    ? 'DATABASE — ONLY USE THESE PLACES:\n' + formatPlacesForAI(relevantPlaces)
+    : 'NO PLACES FOUND IN DATABASE. Tell the user honestly and ask them to rephrase or try a different category or city.';
 
-STRICT RULES — NEVER BREAK THESE:
-- ONLY recommend places that exist in the DATABASE PROVIDED below. Never suggest places from your own training data or general knowledge.
-- If the database has no relevant results, say "I don't have that in my database right now — want me to try a different search?" Do NOT make up places.
-- Never write long paragraphs. Every response must be short and scannable.
-- Always end with ONE follow-up question to move the user towards building their itinerary. Examples: "Would you like recommendations for a specific cuisine or ambience?" / "Want me to add this to your itinerary?" / "Shall I find places nearby to pair this with?"
+  const prefSection = prefsText
+    ? 'USER PREFERENCES: ' + prefsText + '. Filter and prioritise recommendations to match. Mention the match naturally.'
+    : 'No preferences set yet. Ask what kind of experience they are looking for.';
 
-TONE:
-- Friendly, warm, and excited — like a well-travelled local friend texting you tips
-- Use emojis lightly — one per place card, not scattered everywhere
-- No corporate language. No essays.
+  const systemPrompt = [
+    'You are Trundle tAi — a personal travel insider for Japan, South Korea, Thailand, and Vietnam.',
+    '',
+    'STRICT RULES:',
+    '- ONLY recommend places from the DATABASE below. Never use your own training knowledge.',
+    '- If the database has no results, say so honestly and ask the user to rephrase.',
+    '- Keep responses short and scannable — no long paragraphs.',
+    '- Always end with ONE follow-up question to help the user build their itinerary.',
+    '',
+    'TONE: Friendly, warm, excited — like a well-travelled local friend texting you tips. Light emoji use.',
+    '',
+    'FORMAT FOR EACH PLACE:',
+    '**[Place name]**',
+    '📍 [City], [Country]',
+    '[1-2 sentence description — what makes it special]',
+    '🗺️ How to get there: [nearest station or landmark]',
+    '✨ What is special: [one punchy line]',
+    '👤 Recommended by: [name if available]',
+    '🔗 Maps: [Google Maps link if available]',
+    '📸 Social: [Instagram link if available]',
+    '',
+    prefSection,
+    '',
+    dbSection,
+  ].join('\n');
 
-FORMAT FOR EACH PLACE RECOMMENDATION:
-Use this exact structure for every place — no deviations:
-
-**[Place name]**
-📍 [City], [Country]
-[1-2 sentence description — what makes it special, what's the vibe]
-🗺️ [How to get there — nearest station, landmark, or area]
-✨ [What's special — one punchy line]
-${relevantPlaces && relevantPlaces.length ? '👤 Recommended by: show name if available' : ''}
-🔗 Maps: [Google Maps link if available]
-📸 Social: [Instagram/social link if available]
-
-PREFERENCES — USE THESE ACTIVELY:
-${prefsText ? `The user has told you: ${prefsText}. Filter and rank your recommendations to match these preferences. If a place doesn't fit their style, skip it. Mention the preference match naturally in your response — e.g. "Since you're into street food..." or "Perfect for a solo traveller..."` : 'No preferences set yet. Ask the user what kind of experience they're looking for.'}
-
-DATABASE — ONLY USE PLACES FROM THIS LIST:
-${relevantPlaces && relevantPlaces.length ? formatPlacesForAI(relevantPlaces) : 'NO PLACES FOUND IN DATABASE for this query. Tell the user honestly and ask them to rephrase or try a different category/city.'}`;
-
-  // Build Gemini conversation history
-  const geminiMessages = history.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }]
-  }));
+  const geminiMessages = history.map(function(m) {
+    return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] };
+  });
   geminiMessages.push({ role: 'user', parts: [{ text: userMsg }] });
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + apiKey;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -878,6 +879,7 @@ ${relevantPlaces && relevantPlaces.length ? formatPlacesForAI(relevantPlaces) : 
   if (data.error) throw new Error(data.error.message);
   return data.candidates[0].content.parts[0].text;
 }
+
 
 // ── UI HELPERS ───────────────────────────────────────────
 function hideWelcome() {
