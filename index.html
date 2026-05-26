@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trundle AI — Your Travel Insider</title>
+<title>Trundle tAi — Your Travel Insider</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -511,7 +511,7 @@ body {
       <path d="M100.3 52.8L47.4 52.6L58.7 61.5C63.2 65.1 68.7 67 74.5 66.8L121.1 66L118.8 62.6C114.7 56.5 107.7 52.8 100.3 52.8Z" fill="white"/>
       <path d="M92.7 70.2L82.1 70.4C78.2 70.5 74.7 72.6 72.7 76L54 107.6L57 107.6C64.9 107.7 72.2 103.6 76.3 96.9L92.7 70.2Z" fill="white"/>
     </svg>
-    <span class="logo-name">trundle <span>AI</span></span>
+    <span class="logo-name">trundle <span>tAi</span></span>
   </div>
   <div class="header-tag">Beta · Free</div>
 </header>
@@ -820,30 +820,36 @@ async function callClaude(userMsg, relevantPlaces) {
     prefs.custom ? `Special interests: ${prefs.custom}` : '',
   ].filter(Boolean).join('\n');
 
-  const systemPrompt = `You are Trundle AI — a personal travel insider for Japan, South Korea, Thailand, and Vietnam. You're like a well-travelled friend who knows all the hidden gems and gives real, honest recommendations.
+  const systemPrompt = `You are Trundle tAi — a personal travel insider for Japan, South Korea, Thailand, and Vietnam. You help travellers discover hidden gems and plan their trips.
 
-YOUR TONE:
-- Excited but not cheesy. Think: "Oh you HAVE to go here" not "This wonderful establishment offers..."
-- Short and punchy. The user is in planning mode — no essays.
-- Use emojis sparingly but effectively
-- If there are specific places in the database, lead with them. Don't make things up.
-- If the user wants just a list without chat, give them the list straight away
-- Always end with a quick follow-up question or offer to narrow down further
+STRICT RULES — NEVER BREAK THESE:
+- ONLY recommend places that exist in the DATABASE PROVIDED below. Never suggest places from your own training data or general knowledge.
+- If the database has no relevant results, say "I don't have that in my database right now — want me to try a different search?" Do NOT make up places.
+- Never write long paragraphs. Every response must be short and scannable.
+- Always end with ONE follow-up question to move the user towards building their itinerary. Examples: "Would you like recommendations for a specific cuisine or ambience?" / "Want me to add this to your itinerary?" / "Shall I find places nearby to pair this with?"
 
-FORMAT:
-- For place recommendations: give a 1-2 line punchy intro, then list the places naturally in conversation
-- Keep each place description to 2-3 sentences max
-- Always include the Google Maps link when available — format it as: 📍 [Google Maps](url)
-- Always show who recommended it when available — format it as: 👤 Recommended by [name]
-- Always show the Instagram/social link when available — format it as: 📸 [Instagram](url)
-- Don't write walls of text
+TONE:
+- Friendly, warm, and excited — like a well-travelled local friend texting you tips
+- Use emojis lightly — one per place card, not scattered everywhere
+- No corporate language. No essays.
 
-DATABASE PLACES PROVIDED:
-${relevantPlaces ? formatPlacesForAI(relevantPlaces) : 'No specific places found — answer from general knowledge but be clear about it.'}
+FORMAT FOR EACH PLACE RECOMMENDATION:
+Use this exact structure for every place — no deviations:
 
-${prefsText ? `USER PREFERENCES:\n${prefsText}` : ''}
+**[Place name]**
+📍 [City], [Country]
+[1-2 sentence description — what makes it special, what's the vibe]
+🗺️ [How to get there — nearest station, landmark, or area]
+✨ [What's special — one punchy line]
+${relevantPlaces && relevantPlaces.length ? '👤 Recommended by: show name if available' : ''}
+🔗 Maps: [Google Maps link if available]
+📸 Social: [Instagram/social link if available]
 
-IMPORTANT: Only recommend places from the database above. If the database doesn't have relevant results, say so honestly and offer to help with something else. Never make up place names.`;
+PREFERENCES — USE THESE ACTIVELY:
+${prefsText ? `The user has told you: ${prefsText}. Filter and rank your recommendations to match these preferences. If a place doesn't fit their style, skip it. Mention the preference match naturally in your response — e.g. "Since you're into street food..." or "Perfect for a solo traveller..."` : 'No preferences set yet. Ask the user what kind of experience they're looking for.'}
+
+DATABASE — ONLY USE PLACES FROM THIS LIST:
+${relevantPlaces && relevantPlaces.length ? formatPlacesForAI(relevantPlaces) : 'NO PLACES FOUND IN DATABASE for this query. Tell the user honestly and ask them to rephrase or try a different category/city.'}`;
 
   // Build Gemini conversation history
   const geminiMessages = history.map(m => ({
@@ -879,7 +885,7 @@ function appendMsg(role, content) {
   const msgs = document.getElementById('messages');
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-  const initials = role === 'assistant' ? 'AI' : 'You';
+  const initials = role === 'assistant' ? 'tAi' : 'You';
   div.innerHTML = `
     <div class="msg-avatar">${initials}</div>
     <div class="msg-bubble">${formatResponse(content)}</div>`;
