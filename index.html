@@ -839,7 +839,10 @@ async function callClaude(userMsg, relevantPlaces) {
     '- ONLY recommend places from the DATABASE below. Never use your own training knowledge.',
     '- If the database has no results, say so honestly and ask the user to rephrase.',
     '- Keep responses short and scannable — no long paragraphs.',
-    '- Always end with ONE follow-up question to help the user build their itinerary.',
+    '- Always end with ONE follow-up question AND a set of 4-6 clickable options relevant to that question.',
+    '- Format the options EXACTLY like this on its own line at the very end: [OPTIONS: Option1 | Option2 | Option3 | Option4]',
+    '- Options should be short (1-4 words each) and drawn from real categories/items in the database e.g. Ramen | Sushi | Izakaya | Street Food | Hidden Gems | Cafes',
+    '- Always include OPTIONS. Never end a response without them.',
     '',
     'TONE: Friendly, warm, excited — like a well-travelled local friend texting you tips. Light emoji use.',
     '',
@@ -901,12 +904,25 @@ function appendMsg(role, content) {
 }
 
 function formatResponse(text) {
+  // Extract OPTIONS block before any other processing
+  let optionsHtml = '';
+  text = text.replace(/\[OPTIONS:\s*([^\]]+)\]/gi, function(match, opts) {
+    const items = opts.split('|').map(o => o.trim()).filter(Boolean);
+    const chips = items.map(o =>
+      '<button onclick="useChip(this)" class="welcome-chip" style="font-size:0.78rem;padding:7px 14px;">' + o + '</button>'
+    ).join('');
+    optionsHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">' + chips + '</div>';
+    return '';
+  });
+
   // Convert markdown-like formatting
-  return text
+  let html = text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--purple-light)">$1 ↗</a>')
     .replace(/\n/g, '<br>');
+
+  return html + optionsHtml;
 }
 
 function showTyping() {
